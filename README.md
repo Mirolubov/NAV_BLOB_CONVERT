@@ -33,3 +33,6 @@ RETURNS NVARCHAR (MAX)
 AS 
 EXTERNAL NAME CLRBlobToText.BlobToText.BlobToNVarChar
 
+#Example
+select top 10 [dbo].BlobToNVarChar([Work Description]) from [dbo].[ARIMA$Sales Header] where [Work Description] is not null
+
