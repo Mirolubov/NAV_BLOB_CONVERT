@@ -27,7 +27,7 @@ Create assemble:
 CREATE ASSEMBLY CLRBlobToText FROM 'C:\CLR\BlobToText.dll' 
 go
 
-And create function
+And create function:
 CREATE FUNCTION [dbo].BlobToNVarChar(@sqlBinary varbinary(max))
 RETURNS NVARCHAR (MAX) 
 AS 
