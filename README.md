@@ -1,38 +1,33 @@
 # DB CLR converting Navision compressed BLOB to NVARCHAR
 
-Одно из преимуществ Ms Dynamics nav это открытая физическая модель данных. Она позвjляет нам формировать внешнюю OLTP отчётность, выгружать данные для хранилищ OLAP простыми запросами SQL без дополнительных операций извлечения и расшифровки данных.
-Все бы ничего, пока мы не натыкаемся на поля с типом Blob (в SQL это тип Image).
-Длина текстового поля в NAV ограничена 250 символами, поэтому длинные строки MS рекомендует хранить в поле с типом BLOB. Пример, добавленные в 2017й версии поле Work Description в таблицу Sales Header.
-И если данные данного типа легко Транс формировать в текст посредством выражения cast(cast(imageColumn as varbinary(max)) as varchar(max)), то прочитать данные с признаком compressed=Yes стандартными средствами уже не удастся.
-Спасибо комьюнити мы теперь знаем, что данные в данном формате начинаются с магического числа 0x01447C5A (hex) 
-Для  решения задачи чтения данных типа compressed BLOB из SQL я решил написать CLR функцию, что позволит использовать её напрямую в запросах к базе данных. Технология SQL CLR добавлена в MS SQL Server, начиная с версии 2005. Эта технология позволяет расширять функциональность SQL сервера с помощью кода, написанного на .NET.
+One of the benefits of Ms Dynamics nav is its open physical data model. It allows us to generate external OLTP reporting, upload data for OLAP repositories with simple SQL queries without additional data extraction and decryption operations. Everything would be fine until we come across fields with the Blob type (in SQL, this is the Image type). The length of the text field in NAV is limited to 250 characters, so MS recommends storing long lines in a field of type BLOB. An example (added in the 2017 version) is the "Work Description" field in the [Sales Header] table. Data of this type can be easily transformed into text using the expression cast (cast (imageColumn as varbinary (max)) as varchar (max)), until we have compressed = Yes attribute. 
+Thanks to the community, we now know that data in this format starts with a magic number 0x01447C5A (hex) To solve the problem of reading compressed BLOB data from SQL, I decided to write a CLR function, which will allow it to be used directly in database queries. SQL CLR technology has been added to MS SQL Server since version 2005. This technology allows you to extend the functionality of SQL server using code written in .NET.
 
-Функция принимает в качестве параметра значение varbinary, определяет наличие компрессии по магическому числу, и проводит декомпрессию данных, возвращает nvarchar строку. 
+The function takes a varbinary value as a parameter, determines whether compression is by magic number, and decompresses the data, returns an nvarchar string.
 
-Установка:
+# Installation:
 
-Скомпилируем dll. Путь к компилятору свой. (можно пропустить и взять уже скомпилированный вариант из папки Release)
+Compile dll. Change compiler path. (You can skip this step and take the already compiled version from the Release folder)
 "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\MSBuild\15.0\Bin\Roslyn\csc.exe" /t:library /out:BlobToText.dll BlobToText.cs
 
-Получаем BlobToText.dll, переносим ее на SQL сервер, в примере в папку C:\CLR\
+You will get BlobToText.dll, move it to SQL server, for example dir C:\CLR\
 
-Теперь в SQL Management Studio
+Now in SQL Management Studio
 
-необходимо разрешить использование CLR в SQL Server.
+'First enable CLR on SQL Server:
 sp_configure 'clr enabled', 1
 go
 reconfigure
 go
 
-
-Выбераем базу 
+'Now select database:
 use Experimental;
 
-Создаем сборку
+'Create assemble:
 CREATE ASSEMBLY CLRBlobToText FROM 'C:\CLR\BlobToText.dll' 
 go
 
-И наконец создаем функцию
+'And create function
 CREATE FUNCTION [dbo].BlobToNVarChar(@sqlBinary varbinary(max))
 RETURNS NVARCHAR (MAX) 
 AS 
