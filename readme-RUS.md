@@ -39,4 +39,4 @@ AS
 EXTERNAL NAME CLRBlobToText.BlobToText.BlobToNVarChar
 
 # Пример
-select top 10 [dbo].BlobToNVarChar([Work Description]) from [dbo].[ARIMA$Sales Header] where [Work Description] is not null
+select top 10 [dbo].BlobToNVarChar([Work Description]) from [dbo].[XXX$Sales Header] where [Work Description] is not null
