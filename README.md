@@ -14,20 +14,20 @@ You will get BlobToText.dll, move it to SQL server, for example dir C:\CLR\
 
 Now in SQL Management Studio
 
-'First enable CLR on SQL Server:
+First enable CLR on SQL Server:
 sp_configure 'clr enabled', 1
 go
 reconfigure
 go
 
-'Now select database:
+Select database:
 use Experimental;
 
-'Create assemble:
+Create assemble:
 CREATE ASSEMBLY CLRBlobToText FROM 'C:\CLR\BlobToText.dll' 
 go
 
-'And create function
+And create function
 CREATE FUNCTION [dbo].BlobToNVarChar(@sqlBinary varbinary(max))
 RETURNS NVARCHAR (MAX) 
 AS 
